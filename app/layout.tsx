@@ -10,6 +10,7 @@ import {
 } from "@clerk/nextjs";
 
 import "./globals.css";
+import { ApolloProviderWrapper } from "@/components/ApolloProvider";
 
 export const metadata: Metadata = {
   title: "Assistly AI SaaS",
@@ -23,10 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     // Wrap the entire app with the Clerk Provider for auth
-    <ClerkProvider>
-      <html lang="en">
-        <body className="min-h-screen flex">{children}</body>
-      </html>
-    </ClerkProvider>
+    <ApolloProviderWrapper>
+      <ClerkProvider>
+        <html lang="en">
+          <body className="min-h-screen flex">{children}</body>
+        </html>
+      </ClerkProvider>
+    </ApolloProviderWrapper>
   );
 }
