@@ -1,4 +1,14 @@
 import type { Metadata } from "next";
+
+import {
+  ClerkProvider,
+  // SignInButton,
+  // SignUpButton,
+  // SignedIn,
+  // SignedOut,
+  // UserButton,
+} from "@clerk/nextjs";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,8 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
+    // Wrap the entire app with the Clerk Provider for auth
+    <ClerkProvider>
+      <html lang="en">
+        <body className="min-h-screen flex">{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }
