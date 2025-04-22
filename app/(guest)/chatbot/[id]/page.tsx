@@ -1,5 +1,6 @@
 "use client";
 
+import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,8 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
 import startNewChat from "@/lib/startNewChat";
-import { Message } from "@/types/types";
+import { GetChatbotByIdResponse, Message } from "@/types/types";
+import { useQuery } from "@apollo/client";
 import { use, useState } from "react";
 
 interface Props {
@@ -40,6 +43,11 @@ function ChatbotPage({ params }: Props) {
     setLoading(false);
     setIsOpen(false);
   };
+
+  const { data: chatbotData } = useQuery<GetChatbotByIdResponse>(
+    GET_CHATBOT_BY_ID,
+    { variables: { id } }
+  );
 
   return (
     <div className="w-full flex bg-gray-100">
@@ -89,6 +97,24 @@ function ChatbotPage({ params }: Props) {
           </form>
         </DialogContent>
       </Dialog>
+
+      <div className="flex flex-col w-full max-w-3xl mx-auto bg-white md:rounded-t-lg shadow-2xl md:mt-10">
+        <div className="flex items-center space-x-4 pb-4 border-b sticky top-0 z-50 bg-[#4D7DFB] py-5 px-10 text-white md:rounded-t-lg">
+          <Avatar
+            seed={
+              (chatbotData && chatbotData.chatbots.name) ||
+              "Jimmyr00ts chatbot assistant"
+            }
+            className="h-12 w-12 bg-white rounded-full border-2 border-white"
+          />
+          <div>
+            <h1 className="truncate text-lg">{chatbotData?.chatbots.name}</h1>
+            <p className="text-sm text-gray-300">
+              ⚡︎ Typically replies instantly
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
