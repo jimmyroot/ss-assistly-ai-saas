@@ -11,9 +11,6 @@ const corsHeaders = {
 export async function POST(request: NextRequest) {
   const { query, variables } = await request.json();
 
-  //   console.log("DEBUG 1", query);
-  //   console.log("DEBUG 1", variables);
-
   try {
     let result;
     if (query.trim().startsWith("mutation")) {
@@ -24,6 +21,8 @@ export async function POST(request: NextRequest) {
         `,
         variables,
       });
+      // This is where you console log out the result to see why the response is missing
+      console.log(result);
     } else {
       // handle queries
       result = await serverClient.query({

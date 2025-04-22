@@ -11,6 +11,7 @@ import {
 
 import "./globals.css";
 import { ApolloProviderWrapper } from "@/components/ApolloProvider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Assistly AI SaaS",
@@ -27,7 +28,10 @@ export default function RootLayout({
     <ApolloProviderWrapper>
       <ClerkProvider>
         <html lang="en">
-          <body className="min-h-screen flex">{children}</body>
+          <body className="min-h-screen flex">
+            {children}
+            <Toaster position="bottom-center" />
+          </body>
         </html>
       </ClerkProvider>
     </ApolloProviderWrapper>

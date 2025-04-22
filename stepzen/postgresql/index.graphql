@@ -1,8 +1,8 @@
 type Chat_sessions {
+  created_at: DateTime
   chatbot_id: Int
   chatbots: Chatbots
     @materializer(query: "chatbotsUsingChat_sessions_chatbot_id_fkey")
-  created_at: DateTime!
   guest_id: Int
   guests: Guests @materializer(query: "guestsUsingChat_sessions_guest_id_fkey")
   id: Int!
@@ -27,7 +27,7 @@ type Chatbots {
       query: "chatbot_characteristicsUsingChatbot_characteristics_chatbot_id_fkey"
     )
   clerk_user_id: String!
-  created_at: DateTime!
+  created_at: DateTime
   id: Int!
   name: String!
 }
@@ -35,18 +35,18 @@ type Chatbots {
 type Guests {
   chat_sessions: [Chat_sessions]
     @materializer(query: "chat_sessionsUsingChat_sessions_guest_id_fkey")
-  created_at: DateTime!
+  created_at: DateTime
   email: String
   id: Int!
   name: String
 }
 
 type Messages {
+  created_at: DateTime
   chat_session_id: Int
   chat_sessions: Chat_sessions
     @materializer(query: "chat_sessionsUsingMessages_chat_session_id_fkey")
   content: String!
-  created_at: DateTime!
   id: Int!
   sender: String!
 }
@@ -162,6 +162,16 @@ type Query {
       table: "chatbots"
       configuration: "postgresql_config"
     )
+  chatbotsByUser(clerk_user_id: String!): [Chatbots]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "chatbots"
+      query: """
+      SELECT "clerk_user_id", "created_at", "id", "name" FROM "chatbots" ORDER BY "id" WHERE "clerk_user_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
   chatbotsPaginatedList(first: Int, after: Int): [Chatbots]
     @dbquery(
       type: "postgresql"
@@ -273,11 +283,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertChat_sessions(
-    created_at: DateTime!
-    guest_id: Int
-    chatbot_id: Int
-  ): Chat_sessions
+  insertChat_sessions(guest_id: Int, chatbot_id: Int): Chat_sessions
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -315,7 +321,7 @@ type Mutation {
       configuration: "postgresql_config"
     )
   insertChatbot_characteristics(
-    created_at: DateTime!
+    created_at: DateTime
     content: String!
     chatbot_id: Int
   ): Chatbot_characteristics
@@ -396,7 +402,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertGuests(created_at: DateTime!, email: String, name: String): Guests
+  insertGuests(name: String, email: String): Guests
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -434,10 +440,10 @@ type Mutation {
       configuration: "postgresql_config"
     )
   insertMessages(
+    created_at: DateTime
     chat_session_id: Int
     content: String!
-    sender: String!
-    created_at: DateTime!
+    sender: String! # created_at: DateTime!
   ): Messages
     @dbquery(
       type: "postgresql"
