@@ -7,7 +7,7 @@ import {
 
 export const BASE_URL =
   process.env.NODE_ENV !== "development"
-    ? `https://${process.env.URL}`
+    ? `https://ss-assistly-ai-saas.netlify.app`
     : "http://localhost:3000";
 
 const httpLink = createHttpLink({
