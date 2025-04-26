@@ -7,7 +7,7 @@ import {
 
 export const BASE_URL =
   process.env.NODE_ENV !== "development"
-    ? `https://${process.env.DEPLOY_URL}`
+    ? `https://${process.env.URL}`
     : "http://localhost:3000";
 
 const httpLink = createHttpLink({
