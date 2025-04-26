@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -14,7 +13,7 @@ export default function Home() {
       </h2>
       <Link href="/create-chatbot">
         <Button className="bg-[#64B5F5]">
-          Let's get started by creating a new chatbot
+          Let&apos;s get started by creating a new chatbot
         </Button>
       </Link>
     </main>

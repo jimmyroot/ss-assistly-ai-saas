@@ -10,11 +10,7 @@ import { FormEvent, use, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
-import {
-  ChatbotCharacteristic,
-  GetChatbotByIdResponse,
-  GetChatbotByIdVariables,
-} from "@/types/types";
+import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
 import Characteristic from "@/components/Characteristic";
 import {
   ADD_CHARACTERISTIC,
@@ -194,7 +190,7 @@ function EditChatbot({ params }: Props) {
 
         <div>
           <h2 className="text-xl font-bold mt-10">
-            Here's what your AI knows...
+            Here&apos;s what your AI knows...
           </h2>
           <p className="mt-3">
             Your chatbot is equipped with the following information, which it

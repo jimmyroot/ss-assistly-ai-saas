@@ -5,7 +5,6 @@ import {
   GetChatSessionMessagesResponse,
   GetChatSessionsMessagesVariables,
 } from "@/types/types";
-import React, { use } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +18,7 @@ async function ReviewSingleSession({ params }: Props) {
   const {
     data: {
       chat_sessions: {
+        // eslint-disable-next-line
         id: chatSessionId,
         created_at,
         messages,

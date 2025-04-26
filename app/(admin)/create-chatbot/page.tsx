@@ -14,6 +14,7 @@ function CreateChatbot() {
   const [chatbotName, setName] = useState("");
   const router = useRouter();
 
+  // eslint-disable-next-line
   const [createChatbot, { data, loading, error }] = useMutation(
     CREATE_CHATBOT,
     {
@@ -35,9 +36,7 @@ function CreateChatbot() {
     }
   };
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="flex flex-col items-center justify-center md:flex-row md:space-x-10 bg-white p-10 rounded-md m-10">

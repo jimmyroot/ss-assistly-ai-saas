@@ -18,7 +18,7 @@ function Characteristic({
 
   const handleRemoveCharacteristic = async (characteristicId: number) => {
     try {
-      const response = await removeCharacteristic({
+      await removeCharacteristic({
         variables: {
           id: characteristicId,
         },

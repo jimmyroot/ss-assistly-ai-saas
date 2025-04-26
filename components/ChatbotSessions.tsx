@@ -11,7 +11,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Avatar from "./Avatar";
-import { GET_CHATBOTS_BY_USER } from "@/graphql/queries/queries";
 import Link from "next/link";
 
 function ChatbotSessions({ chatbots }: { chatbots: Chatbot[] }) {

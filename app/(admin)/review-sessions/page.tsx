@@ -1,8 +1,5 @@
 import ChatbotSessions from "@/components/ChatbotSessions";
-import {
-  GET_CHATBOTS_BY_USER,
-  GET_USER_CHATBOTS,
-} from "@/graphql/queries/queries";
+import { GET_USER_CHATBOTS } from "@/graphql/queries/queries";
 import { serverClient } from "@/lib/server/serverClient";
 import {
   Chatbot,

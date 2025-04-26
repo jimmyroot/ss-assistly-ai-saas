@@ -4,7 +4,7 @@ import Avatar from "./Avatar";
 
 import {
   SignInButton,
-  SignOutButton,
+  // SignOutButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -12,7 +12,7 @@ import {
 
 function Header() {
   return (
-    <header className="big-white shadow-sm text-gray-800 flex justify-between p-5">
+    <header className="bg-white shadow-sm text-gray-800 flex justify-between p-5">
       <Link href="/" className="flex items-center text-4xl font-thin">
         {/* Avatar */}
         <Avatar seed="Jimmyr00t's AI Support Agent" />

@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         variables,
       });
       // This is where you console log out the result to see why the response is missing
-      console.log(result);
+      // console.log(result);
     } else {
       // handle queries
       result = await serverClient.query({
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
         `,
         variables,
       });
+      // console.log(result);
     }
 
     const data = result.data;

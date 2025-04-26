@@ -1,6 +1,7 @@
 "use client";
 
 import Avatar from "@/components/Avatar";
+import Messages from "@/components/Messages";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,15 +10,38 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
+import {
+  GET_CHATBOT_BY_ID,
+  GET_MESSAGES_BY_CHAT_SESSION_ID,
+} from "@/graphql/queries/queries";
 import startNewChat from "@/lib/startNewChat";
-import { GetChatbotByIdResponse, Message } from "@/types/types";
+import {
+  GetChatbotByIdResponse,
+  Message,
+  MessagesByChatSessionIdResponse,
+  MessagesByChatSessionIdVariables,
+} from "@/types/types";
 import { useQuery } from "@apollo/client";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  message: z.string().min(2, "Your message is too short!"),
+});
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -25,13 +49,19 @@ interface Props {
 
 function ChatbotPage({ params }: Props) {
   const { id } = use(params);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [chatId, setChatId] = useState(0);
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      message: "",
+    },
+  });
 
   const handleInformationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +79,100 @@ function ChatbotPage({ params }: Props) {
     { variables: { id } }
   );
 
+  const {
+    // loading: loadingQuery,
+    // error,
+    data,
+  } = useQuery<
+    MessagesByChatSessionIdResponse,
+    MessagesByChatSessionIdVariables
+  >(GET_MESSAGES_BY_CHAT_SESSION_ID, {
+    variables: {
+      chat_session_id: chatId,
+    },
+    // Skip if somehow we got this far with no chatId; defensive programming!
+    skip: !chatId,
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    const { message: formMessage } = values;
+    const message = formMessage;
+    form.reset();
+
+    if (!name || !email) {
+      setIsOpen(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!message.trim()) return;
+
+    // Optimistically update user msg
+    const userMessage: Message = {
+      id: Date.now(),
+      content: message,
+      created_at: new Date().toISOString(),
+      chat_session_id: chatId,
+      sender: "user",
+    };
+
+    const loadingMessage: Message = {
+      id: Date.now() + 1,
+      content: "Thinking...",
+      created_at: new Date().toISOString(),
+      chat_session_id: chatId,
+      sender: "ai",
+    };
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      userMessage,
+      loadingMessage,
+    ]);
+
+    try {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          chat_session_id: chatId,
+          chatbot_id: id,
+          content: message,
+        }),
+      });
+
+      const result = await response.json();
+
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === loadingMessage.id
+            ? { ...msg, content: result.content, id: result.id }
+            : msg
+        )
+      );
+    } catch (error) {
+      console.error("Error sending message: ", error);
+    }
+  };
+
+  // Set chat data locally
+  useEffect(() => {
+    if (data) setMessages(data.chat_sessions.messages);
+  }, [data]);
+
+  if (!chatbotData) return;
+
   return (
     <div className="w-full flex bg-gray-100">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleInformationSubmit}>
             <DialogHeader>
-              <DialogTitle>Let's help you out!</DialogTitle>
+              <DialogTitle>Let&apos;s help you out!</DialogTitle>
               <DialogDescription>
                 I just need a few details before we get started.
               </DialogDescription>
@@ -108,12 +225,45 @@ function ChatbotPage({ params }: Props) {
             className="h-12 w-12 bg-white rounded-full border-2 border-white"
           />
           <div>
-            <h1 className="truncate text-lg">{chatbotData?.chatbots.name}</h1>
+            <h1 className="truncate text-lg">{chatbotData.chatbots.name}</h1>
             <p className="text-sm text-gray-300">
               ⚡︎ Typically replies instantly
             </p>
           </div>
         </div>
+        <Messages messages={messages} chatbotName={chatbotData.chatbots.name} />
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex items-start sticky bottom-0 z-50 space-x-4 drop-shadow-lg p-4 bg-gray-100 rounded-md"
+          >
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel hidden>Message</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Type a message..."
+                      {...field}
+                      className="p-8 bg-white"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
+              type="submit"
+              className="h-full"
+            >
+              Send
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
